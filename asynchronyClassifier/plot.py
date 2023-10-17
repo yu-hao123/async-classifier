@@ -11,6 +11,8 @@ def plot_raw_data(
         ):
     """
     Creates a 3-subplot figure using Matplotlib to visualize the raw ventilation data.
+    The pressure, flow and pmus waveforms are plotted in sequence.
+    The user still needs to apply/manage plt.show()
 
     Returns:
     - fig (matplotlib.figure.Figure): The top-level container representing the whole figure.
@@ -37,6 +39,5 @@ def plot_raw_data(
 
     # Adjust layout to prevent overlap
     plt.tight_layout()
-    plt.show()
 
     return fig, axs
