@@ -1,8 +1,9 @@
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
-from asynchronyClassifier import plot_raw_data
+from asynchronyClassifier import plot_raw_data, find_ineffective_effort, find_auto_trigger
 
 def write_ventilation_csv(
         time : list,
@@ -128,15 +129,20 @@ def retrieve_pmus_marks(pmus : np.ndarray):
 
 def main():
     csv_data = read_csv('coletavcv_adequate.csv')
-    time = csv_data['time']
-    pressure = csv_data['pressure']
-    flow = csv_data['flow']
-    pmus = csv_data['pmus']
+    vtable = pd.DataFrame(csv_data)
+    interval = np.arange(55400, 60800)
+    cut_table = vtable.iloc[interval]
+
+    time = cut_table['time'].values
+    pressure = cut_table['pressure'].values
+    flow = cut_table['flow'].values
+    pmus = cut_table['pmus'].values
+    volume = cut_table['volume'].values
 
     fig, axs = plot_raw_data(time, pressure, flow, pmus)
     plt.show(block=False)
 
-    ins_marks, exp_marks = retrieve_parity_marks(csv_data['volume'] * 10)
+    ins_marks, exp_marks = retrieve_parity_marks(volume * 10)
     pmus_start_marks, pmus_peak_marks, pmus_finish_marks = retrieve_pmus_marks(pmus)
 
     fig, axs = plot_raw_data(time, pressure, flow, pmus)
@@ -169,6 +175,15 @@ def main():
         marker='v',
         s=64
     )
+
+    iee_indexes = find_ineffective_effort(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    for iee in iee_indexes:
+        axs[2].text(time[iee], -5.0, 'IEE', color='black', fontsize=14, fontweight='semibold')
+
+    att_indexes = find_auto_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    for att in att_indexes:
+        axs[1].text(time[att], -5.0, 'ATT', color='black', fontsize=14, fontweight='semibold')
+
     plt.show()
 
 
