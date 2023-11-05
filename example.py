@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from asynchronyClassifier import plot_raw_data, find_ineffective_effort, find_auto_trigger
+from asynchronyClassifier import plot_raw_data, \
+find_ineffective_effort, find_auto_trigger, find_reverse_trigger, find_double_trigger, \
+find_early_cycling, find_late_cycling
 
 def write_ventilation_csv(
         time : list,
@@ -129,8 +131,12 @@ def retrieve_pmus_marks(pmus : np.ndarray):
 
 def main():
     csv_data = read_csv('coletavcv_adequate.csv')
-    vtable = pd.DataFrame(csv_data)
     interval = np.arange(55400, 60800)
+
+    #csv_data = read_csv('coletapcv_adequate.csv')
+    #interval = np.arange(0, 12000)
+
+    vtable = pd.DataFrame(csv_data)
     cut_table = vtable.iloc[interval]
 
     time = cut_table['time'].values
@@ -178,12 +184,31 @@ def main():
 
     iee_indexes = find_ineffective_effort(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
     for iee in iee_indexes:
-        axs[2].text(time[iee], -5.0, 'IEE', color='black', fontsize=14, fontweight='semibold')
+        axs[2].text(time[iee], -5.0, 'IEE', color='black', fontsize=12, fontweight='semibold')
 
     att_indexes = find_auto_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
     for att in att_indexes:
-        axs[1].text(time[att], -5.0, 'ATT', color='black', fontsize=14, fontweight='semibold')
+        axs[1].text(time[att], -20.0, 'ATT', color='black', fontsize=12, fontweight='semibold')
 
+    rts_indexes, rtd_indexes = find_reverse_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    for rts in rts_indexes:
+        axs[1].text(time[rts], -20.0, 'RTs', color='black', fontsize=12, fontweight='semibold')
+    for rtd in rtd_indexes:
+        axs[1].text(time[rtd], -20.0, 'RTd', color='black', fontsize=12, fontweight='semibold')
+
+    dt_indexes = find_double_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    for dt in dt_indexes:
+        axs[1].text(time[dt], -20.0, 'DT', color='black', fontsize=12, fontweight='semibold')
+
+    ec_indexes = find_early_cycling(ins_marks, exp_marks, pmus_start_marks, pmus_peak_marks)
+    for ec in ec_indexes:
+        axs[2].text(time[ec], -5.0, 'EC', color='black', fontsize=12, fontweight='semibold')
+
+    lc_indexes = find_late_cycling(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    for lc in lc_indexes:
+        axs[2].text(time[lc], -5.0, 'LC', color='black', fontsize=12, fontweight='semibold')
+
+    print(lc_indexes)
     plt.show()
 
 
