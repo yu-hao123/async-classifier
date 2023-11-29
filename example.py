@@ -103,29 +103,37 @@ def retrieve_pmus_marks(pmus : np.ndarray):
     - finish_marks (np.ndarray) : Array conteining the pmus finish indexes.
     """
     start_marks = [1]
-    finish_marks = [1]
+    finish_marks = []
     peak_marks = []
 
     for i in range(len(pmus) - 15):
         if (-pmus[i] < 0.1 and -pmus[i + 10] > 0.2 and (i - start_marks[-1]) > 50):
             start_marks.append(i)
-        if (-pmus[i] > 0.2 and -pmus[i + 10] < 0.1 and (i - finish_marks[-1]) > 50):
-            finish_marks.append(i + 10)
 
     start_marks = start_marks[1:]
-    finish_marks = finish_marks[1:]
 
-    # The first mark as a convention is the inspiration mark
-    if (finish_marks[0] <= start_marks[0]):
-        finish_marks = finish_marks[1:]
+    for i in range(len(start_marks) - 1):
+        for j in range(start_marks[i] + 50, start_marks[i + 1]):
+            if (-pmus[j] < 0.1):
+                finish_marks.append(j)
+                break
 
     # guarantee that marks array have the same size
     if (len(start_marks) > len(finish_marks)):
-        start_marks = start_marks[1:-1]
+        start_marks = start_marks[:-1]
+
+    outliers = []
+    min_threshold = 1.5
 
     for i in range(len(start_marks)):
         index = np.argmin(pmus[start_marks[i]:finish_marks[i]])
-        peak_marks.append(start_marks[i] + index)
+        if (abs(pmus[start_marks[i] + index]) < min_threshold):
+            outliers.append(i)
+        else:
+            peak_marks.append(start_marks[i] + index)
+
+    start_marks  = [value for index, value in enumerate(start_marks) if index not in outliers]
+    finish_marks = [value for index, value in enumerate(finish_marks) if index not in outliers]
 
     return start_marks, peak_marks, finish_marks
 
@@ -133,8 +141,8 @@ def main():
     csv_data = read_csv('coletavcv_adequate.csv')
     interval = np.arange(55400, 60800)
 
-    #csv_data = read_csv('coletapcv_adequate.csv')
-    #interval = np.arange(0, 12000)
+    csv_data = read_csv('coletapcv_adequate.csv')
+    interval = np.arange(0, 12000)
 
     vtable = pd.DataFrame(csv_data)
     cut_table = vtable.iloc[interval]
@@ -208,7 +216,6 @@ def main():
     for lc in lc_indexes:
         axs[2].text(time[lc], -5.0, 'LC', color='black', fontsize=12, fontweight='semibold')
 
-    print(lc_indexes)
     plt.show()
 
 
