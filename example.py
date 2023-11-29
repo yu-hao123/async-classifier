@@ -7,34 +7,6 @@ from asynchronyClassifier import plot_raw_data, \
 find_ineffective_effort, find_auto_trigger, find_reverse_trigger, find_double_trigger, \
 find_early_cycling, find_late_cycling
 
-def write_ventilation_csv(
-        time : list,
-        pressure : list,
-        flow : list,
-        volume : list,
-        pmus : list,
-        file_path : str
-        ) -> bool:
-    """
-    Write time, pressure, flow, volume and pmus samples to a CSV file.
-    The first line of the CSV will be the dataset fieldnames.
-
-    Returns:
-    - bool: True if successfully written to the file, False otherwise.
-    """
-    try:
-        with open(file_path, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(['time', 'pressure', 'flow', 'volume', 'pmus'])  # Write header
-            for t, p, f, v, pm in zip(time, pressure, flow, volume, pmus):
-                writer.writerow([t, p, f, v, pm])
-        print(f'Data successfully written to {file_path}')
-        return True
-    except Exception as e:
-        print(f'Error: {e}')
-        return False
-
-
 def read_csv(file_path : str) -> dict:
     """
     Read data from a CSV file and store it in NumPy arrays within a dictionary.
@@ -137,12 +109,9 @@ def retrieve_pmus_marks(pmus : np.ndarray):
 
     return start_marks, peak_marks, finish_marks
 
-def main():
-    csv_data = read_csv('coletavcv_adequate.csv')
-    interval = np.arange(55400, 60800)
-
-    csv_data = read_csv('coletapcv_adequate.csv')
-    interval = np.arange(0, 12000)
+def show_asynchronies(filename, start, finish):
+    csv_data = read_csv(filename)
+    interval = np.arange(start, finish)
 
     vtable = pd.DataFrame(csv_data)
     cut_table = vtable.iloc[interval]
@@ -217,6 +186,12 @@ def main():
         axs[2].text(time[lc], -5.0, 'LC', color='black', fontsize=12, fontweight='semibold')
 
     plt.show()
+
+def main():
+    show_asynchronies('coletavcv_adequate.csv', 56100, 61000)
+    show_asynchronies('coletapcv_adequate.csv', 0, 12000)
+
+
 
 
 if __name__ == "__main__":

@@ -1,6 +1,10 @@
 '''
 Detect and classify asynchronies
 
+all of the methods below expects ins_marks and exp_marks arrays with the same size
+the same goes with pmus_start_marks and pmus_finish_marks
+also ins_marks[0] < exp_marks[0] and pmus_start_marks[0] < pmus_finish_marks[0]
+
 '''
 
 import numpy as np
