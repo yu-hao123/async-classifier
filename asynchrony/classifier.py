@@ -68,7 +68,10 @@ class Classifier:
         for i in range(len(pmus_start_marks)):
             for j in range(len(ins_marks)):
                 if (ins_marks[j] > pmus_start_marks[i] + DELAY and ins_marks[j] < pmus_finish_marks[i]):
+                    if (j > 1 and exp_marks[j - 1] > pmus_start_marks[i]): # ignore "doubled" ventilator cycles
+                        continue
                     indexes.append(ins_marks[j])
+        return indexes
 
     def find_auto_trigger(self, ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks):
         indexes = []

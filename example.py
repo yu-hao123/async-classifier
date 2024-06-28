@@ -162,6 +162,10 @@ def show_asynchronies(filename, start, finish):
     for iee in iee_indexes:
         axs[2].text(time[iee], -5.0, 'IEE', color='black', fontsize=12, fontweight='semibold')
 
+    dlt_indexes = classifier.find_delayed_triggering(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    for dlt in dlt_indexes:
+        axs[1].text(time[dlt], -10.0, 'DeLT', color='black', fontsize=12, fontweight='semibold')
+
     att_indexes = classifier.find_auto_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
     for att in att_indexes:
         axs[1].text(time[att], -20.0, 'ATT', color='black', fontsize=12, fontweight='semibold')
