@@ -33,8 +33,22 @@ def plot_raw_data(
     axs[2].set_xlabel('Time')
     axs[2].set_ylabel('Pmus')
 
+    # Set x-ticks every second
+    # axs[-1].xaxis.set_major_locator(ticker.MultipleLocator(base=1))
+
+    # Set x-tick labels every 10 seconds
+    #axs[-1].xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: int(x) if int(x) % 10 == 0 else ''))
+
+    # Set ticks every 10 seconds
+    axs[-1].set_xticks(np.arange(time[0], time[-1], 10))
+    # Set non-labeled ticks every 1 second
+    axs[-1].set_xticks(np.arange(time[0], time[-1], 1), minor=True)
+
     for ax in axs:
-        ax.grid(True)
+        ax.yaxis.grid(True)
+        ax.xaxis.grid(True, which='major', linestyle='-')
+        ax.xaxis.grid(True, which='minor', linestyle=':', color=[0.5, 0.5, 0.5])
+
     fig.align_ylabels(axs)
 
     # Adjust layout to prevent overlap

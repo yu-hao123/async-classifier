@@ -3,9 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from asynchronyClassifier import plot_raw_data, \
-find_ineffective_effort, find_auto_trigger, find_reverse_trigger, find_double_trigger, \
-find_early_cycling, find_late_cycling
+from asynchrony import plot_raw_data, Classifier
 
 def read_csv(file_path : str) -> dict:
     """
@@ -132,10 +130,10 @@ def show_asynchronies(filename, start, finish):
     fmin = min(flow)
     fmax = max(flow)
     for mark in ins_marks:
-        axs[1].plot([time[mark], time[mark]], [fmin, fmax], 'b--', linewidth=1.5)
+        axs[1].plot([time[mark], time[mark]], [fmin, fmax], 'b--')
 
     for mark in exp_marks:
-        axs[1].plot([time[mark], time[mark]], [fmin, fmax], 'r--', linewidth=1.5)
+        axs[1].plot([time[mark], time[mark]], [fmin, fmax], 'r--')
 
     axs[2].scatter(
         [time[i] for i in pmus_start_marks],
@@ -159,29 +157,30 @@ def show_asynchronies(filename, start, finish):
         s=64
     )
 
-    iee_indexes = find_ineffective_effort(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    classifier = Classifier()
+    iee_indexes = classifier.find_ineffective_effort(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
     for iee in iee_indexes:
         axs[2].text(time[iee], -5.0, 'IEE', color='black', fontsize=12, fontweight='semibold')
 
-    att_indexes = find_auto_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    att_indexes = classifier.find_auto_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
     for att in att_indexes:
         axs[1].text(time[att], -20.0, 'ATT', color='black', fontsize=12, fontweight='semibold')
 
-    rts_indexes, rtd_indexes = find_reverse_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    rts_indexes, rtd_indexes = classifier.find_reverse_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
     for rts in rts_indexes:
         axs[1].text(time[rts], -20.0, 'RTs', color='black', fontsize=12, fontweight='semibold')
     for rtd in rtd_indexes:
         axs[1].text(time[rtd], -20.0, 'RTd', color='black', fontsize=12, fontweight='semibold')
 
-    dt_indexes = find_double_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    dt_indexes = classifier.find_double_trigger(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
     for dt in dt_indexes:
         axs[1].text(time[dt], -20.0, 'DT', color='black', fontsize=12, fontweight='semibold')
 
-    ec_indexes = find_early_cycling(ins_marks, exp_marks, pmus_start_marks, pmus_peak_marks)
+    ec_indexes = classifier.find_early_cycling(ins_marks, exp_marks, pmus_start_marks, pmus_peak_marks)
     for ec in ec_indexes:
         axs[2].text(time[ec], -5.0, 'EC', color='black', fontsize=12, fontweight='semibold')
 
-    lc_indexes = find_late_cycling(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
+    lc_indexes = classifier.find_late_cycling(ins_marks, exp_marks, pmus_start_marks, pmus_finish_marks)
     for lc in lc_indexes:
         axs[2].text(time[lc], -5.0, 'LC', color='black', fontsize=12, fontweight='semibold')
 
@@ -190,8 +189,6 @@ def show_asynchronies(filename, start, finish):
 def main():
     show_asynchronies('coletavcv_adequate.csv', 56100, 61000)
     show_asynchronies('coletapcv_adequate.csv', 0, 12000)
-
-
 
 
 if __name__ == "__main__":
